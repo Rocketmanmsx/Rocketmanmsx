@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta property="og:title" content="Rocketman – MSX Retro Game">
+    <meta property="og:description" content="Año 2147. Ayuda al Mayor Tom a reconstruir su cohete en este tributo a los clásicos de MSX.">
+
+    <meta property="og:image" content="https://rocketmanmsx.info/imagenes/ilustraciones/Imagen_redes.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="848">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <title>Rocketman – MSX Retro Game</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #00ff41; 
+            --bg-dark: #0b0b0b;
+            --panel-bg: rgba(22, 22, 22, 0.85);
+            --border-color: #333;
+            --highlight-red: #ff4444;
+            --font-main: 'Courier New', Courier, monospace;
+            --font-space: 'Orbitron', sans-serif;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            font-family: var(--font-main);
+            background-color: var(--bg-dark);
+            color: #e0e0e0;
+            line-height: 1.6;
+            padding-top: 60px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* EFECTO CRT (SCANLINES) */
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: 2000;
+            background-size: 100% 3px, 3px 100%;
+            pointer-events: none;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('imagenes/ilustraciones/ROCKETMAN_FONDO.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            opacity: 0.5;
+            z-index: -1;
+        }
+
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { filter: drop-shadow(0 0 5px rgba(0, 255, 65, 0.2)); }
+            50% { filter: drop-shadow(0 0 15px rgba(0, 255, 65, 0.6)); }
+        }
+
+        nav {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            background: #000;
+            border-bottom: 1px solid var(--primary-color);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            padding: 10px 0;
+        }
+
+        nav a {
+            font-family: var(--font-space);
+            color: #fff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+
+        nav a:hover { color: var(--primary-color); }
+
+        h1, h2, h3 {
+            font-family: var(--font-space);
+            color: #ffffff;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--primary-color);
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        section {
+            margin-bottom: 60px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.75); 
+            border-radius: 4px;
+            scroll-margin-top: 80px; 
+            border: 1px solid rgba(0, 255, 65, 0.1);
+        }
+
+        header {
+            background: linear-gradient(180deg, rgba(26, 26, 26, 0.9), rgba(0, 0, 0, 0.9));
+            border-bottom: 3px solid var(--primary-color);
+            padding: 30px 0 40px 0;
+            text-align: center;
+        }
+
+        .top-logos-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            margin-bottom: 20px;
+        }
+
+        .partner-logo {
+            height: 50px;
+            animation: pulseGlow 3s infinite ease-in-out;
+        }
+
+        .logo-teniente { height: 65px; }
+
+        .header-logo {
+            max-width: 100%;
+            max-height: 150px;
+            animation: pulseGlow 4s infinite ease-in-out;
+        }
+
+        /* EFECTO ZOOM EN TODAS LAS IMÁGENES AL TOCAR CON PUNTERO */
+        img {
+            transition: transform 0.3s ease;
+        }
+        img:hover {
+            transform: scale(1.1);
+            z-index: 10;
+        }
+
+        .lang-selector {
+            position: fixed;
+            top: 70px; 
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            gap: 10px;
+        }
+
+        .lang-selector button {
+            background: #000;
+            border: 2px solid var(--primary-color);
+            padding: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+
+        .lang-selector button img {
+            width: 30px;
+            height: auto;
+            display: block;
+        }
+
+        .lang-selector button.active {
+            background: var(--primary-color);
+            box-shadow: 0 0 15px var(--primary-color);
+        }
+
+        .lang { display: none; }
+        .lang.active { display: inline; } 
+        div.lang.active, section.lang.active, ul.lang.active { display: block; }
+
+        .year-highlight { color: var(--highlight-red); font-size: 1.8rem; font-weight: bold; }
+        .quote-highlight { color: var(--highlight-red); display: block; margin: 25px 0; font-style: italic; text-align: center; font-size: 1.2rem; }
+        .world-item { margin-bottom: 25px; padding-left: 15px; border-left: 1px solid var(--border-color); }
+        .boss-name { color: var(--highlight-red); font-weight: bold; }
+
+        /* Estilo para la imagen en introducción (alineada a la derecha y ajustada) */
+        .intro-text-wrapper {
+            position: relative;
+            overflow: hidden;
+        }
+        .insignia-intro {
+            float: right;
+            width: 180px; 
+            height: auto;
+            margin: 10px 0 10px 25px;
+        }
+
+        /* GRID HERO: VIDEO + CAPTURAS DERECHA ALINEADAS */
+        .hero-media-grid {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+            margin-bottom: 40px;
+            align-items: center;
+        }
+
+        .side-captures {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .side-captures img {
+            width: 100%;
+            height: auto;
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+        }
+
+        @media (max-width: 850px) {
+            .hero-media-grid { grid-template-columns: 1fr; }
+            .side-captures { flex-direction: row; justify-content: center; }
+            .side-captures img { width: 45%; }
+            
+            /* Ajuste para que la imagen no desaparezca y no se mezcle con el texto año 2147 */
+            .insignia-intro {
+                float: none;
+                display: block;
+                margin: 0 auto 20px auto;
+                width: 160px;
+            }
+        }
+
+        .grid-header {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            background: #222;
+            color: var(--primary-color);
+            font-family: var(--font-space);
+            padding: 10px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .grid-row {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-top: none;
+            align-items: center;
+        }
+
+        .grid-cell { padding: 12px; border-right: 1px solid var(--border-color); }
+        .grid-cell:last-child { border-right: none; }
+
+        .item-icon {
+            width: 32px;
+            height: 32px;
+            image-rendering: pixelated; 
+            display: block;
+            margin: 0 auto;
+        }
+
+        .game-image-container { text-align: center; margin: 30px 0; }
+        .protagonist-img {
+            max-width: 720px; 
+            width: 100%;
+            height: auto;
+            animation: floating 4s infinite ease-in-out;
+            filter: drop-shadow(0 0 15px rgba(0, 255, 65, 0.4));
+        }
+
+        .mission-logo {
+            display: block;
+            max-width: 600px;
+            width: 100%;
+            margin: 40px auto;
+            filter: drop-shadow(0 0 15px rgba(0, 255, 65, 0.3));
+        }
+
+        /* CONTENEDOR DE CAPTURAS ESTILO TIENDA */
+        .capture-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .capture-container img {
+            max-width: 45%; 
+            width: 100%;
+            height: auto;
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+        }
+
+        /* VIDEOS */
+        .main-video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; 
+            height: 0;
+            overflow: hidden;
+            border: 3px solid var(--primary-color);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.4);
+            background: #000;
+            width: 80%; 
+            margin: 0 auto;
+        }
+        .main-video-wrapper iframe {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+        }
+
+        .video-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 30px 0;
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;             
+            max-width: 368px;        
+            aspect-ratio: 16 / 9;    
+            overflow: hidden;
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
+            background: #000;
+            margin: 10px auto;       
+        }
+        
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+        }
+
+        .single-video-wrapper {
+            position: relative;
+            padding-bottom: 45%; 
+            height: 0;
+            overflow: hidden;
+            max-width: 640px; 
+            width: 80%; 
+            margin: 30px auto;
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
+            background: #000;
+        }
+        .single-video-wrapper iframe {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+        }
+
+        .physical-alert {
+            border: 2px dashed var(--highlight-red) !important;
+            background: rgba(255, 68, 68, 0.05) !important;
+            text-align: center;
+        }
+
+        .email-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border-bottom: 1px solid var(--primary-color);
+            padding: 2px 5px;
+            transition: 0.3s;
+        }
+
+        .email-link:hover {
+            background: var(--primary-color);
+            color: #000;
+        }
+
+        .audio-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 3000;
+            background: #000;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 10px;
+            cursor: pointer;
+            font-family: var(--font-space);
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.3s;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+        }
+
+        /* ESTILO PARA ICONOS REDES SOCIALES */
+        .social-icons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .social-icons a img {
+            width: 40px;
+            height: 40px;
+            transition: 0.3s;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            border-top: 1px solid var(--border-color);
+            background: rgba(0,0,0,0.8);
+            font-family: var(--font-space);
+        }
+
+        .credits-list { list-style: none; padding: 0; }
+        .credits-list li { margin-bottom: 10px; }
+        .credits-list strong { color: var(--primary-color); }
+    </style>
+</head>
+<body onload="setLanguage('es')">
+
+<audio id="bgMusic" loop>
+    <source src="Musica/intro.wav" type="audio/wav">
+</audio>
+
+<button class="audio-control" onclick="toggleMusic()">
+    <span id="audio-icon">⏸</span>
+    <span class="lang lang-es">MUSICA</span><span class="lang lang-en">MUSIC</span>
+</button>
+
+<script>
+    function setLanguage(lang) {
+        document.querySelectorAll('.lang').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.lang-' + lang).forEach(el => el.classList.add('active'));
+        
+        document.querySelectorAll('.lang-selector button').forEach(btn => {
+            btn.classList.remove('active');
+            if(btn.getAttribute('onclick').includes("'" + lang + "'")) btn.classList.add('active');
+        });
+        
+        var music = document.getElementById("bgMusic");
+        music.play().catch(e => console.log("Audio en espera"));
+    }
+
+    function toggleMusic() {
+        var music = document.getElementById("bgMusic");
+        var icon = document.getElementById("audio-icon");
+        if (music.paused) {
+            music.play();
+            icon.innerText = "⏸";
+        } else {
+            music.pause();
+            icon.innerText = "▶";
+        }
+    }
+
+    document.addEventListener('click', function() {
+        var music = document.getElementById("bgMusic");
+        if (music.paused) music.play();
+    }, { once: true });
+</script>
+
+<nav>
+    <a href="#intro"><span class="lang lang-es">Inicio</span><span class="lang lang-en">Home</span></a>
+    <a href="#mision"><span class="lang lang-es">Misión</span><span class="lang lang-en">Mission</span></a>
+    <a href="#mundos"><span class="lang lang-es">Mundos</span><span class="lang lang-en">Worlds</span></a>
+    <a href="#tienda"><span class="lang lang-es">Tienda</span><span class="lang lang-en">Shop</span></a>
+    <a href="#doki"><span class="lang lang-es">Doki</span><span class="lang lang-en">Doki</span></a>
+    <a href="#extra"><span class="lang lang-es">Extras</span><span class="lang lang-en">Extras</span></a>
+    <a href="#jukebox"><span class="lang lang-es">Jukebox</span><span class="lang lang-en">Jukebox</span></a>
+    <a href="#fisico"><span class="lang lang-es">Físico</span><span class="lang lang-en">Physical</span></a>
+    <a href="#promo"><span class="lang lang-es">Promo</span><span class="lang lang-en">Promo</span></a>
+    <a href="#creditos"><span class="lang lang-es">Créditos</span><span class="lang lang-en">Credits</span></a>
+</nav>
+
+<div class="lang-selector">
+    <button onclick="setLanguage('en')" title="English">
+        <img src="https://cdn-icons-png.flaticon.com/512/197/197374.png" alt="English">
+    </button>
+    <button onclick="setLanguage('es')" title="Español">
+        <img src="https://cdn-icons-png.flaticon.com/512/197/197593.png" alt="Español">
+    </button>
+</div>
+
+<header>
+    <div class="container">
+        <div class="top-logos-container">
+            <img src="imagenes/ilustraciones/Logo_Renovatio.png" alt="Renovatio" class="partner-logo">
+            <img src="imagenes/ilustraciones/Logo_teniente_corrupto.png" alt="Teniente Corrupto" class="partner-logo logo-teniente">
+        </div>
+        <img src="imagenes/ilustraciones/Letras_Rocketman.png" alt="ROCKETMAN" class="header-logo">
+    </div>
+</header>
+
+<main class="container">
+
+    <div class="hero-media-grid">
+        <div class="main-video-wrapper">
+            <iframe 
+                src="https://www.youtube.com/embed/gk_7lOrEm1o" 
+                title="Rocketman New Trailer" 
+                allowfullscreen>
+            </iframe>
+        </div>
+        <div class="side-captures">
+            <img src="capturas/code.png" alt="Code Screen">
+            <img src="capturas/idioma.png" alt="Language Screen">
+        </div>
+    </div>
+
+    <section id="intro">
+        <h2 class="lang lang-en">1. INTRODUCTION</h2>
+        <h2 class="lang lang-es">1. INTRODUCCIÓN</h2>
+
+        <div class="lang lang-es intro-text-wrapper">
+            <img src="imagenes/ilustraciones/INSIGNIA GET-FORCE TEXTURA.png" alt="Insignia" class="insignia-intro">
+            <p><span class="year-highlight">Año 2147.</span><br>
+            El Mayor Tom, veterano del Ejército Espacial Jet Force, recibe una orden directa de Control de Tierra: investigar un fenómeno desconocido detectado cerca de la órbita del planeta.<br>
+            Una última mirada a su esposa, un último mensaje: 
+            <span class="quote-highlight">“Solo prométeme que volverás”</span>
+            Durante la misión, un torbellino de energía aparece frente al cohete: un Vórtice Dimensional.<br>
+            El Mayor Tom pierde el control y es absorbido, despertando en una realidad paralela donde las leyes de la física han sido distorsionadas.<br>
+            Su nave ha quedado destruida: sin motores, sin combustible y sin generadores.<br>
+            Para regresar a casa, deberá reconstruir su cohete y superar cinco mundos imposibles gobernados por criaturas hostiles y guardianes legendarios.<br>
+            Cada mundo custodia un generador dimensional. Solo reuniendo los cinco podrá volver a la Tierra.</p>
+        </div>
+
+        <div class="lang lang-en intro-text-wrapper">
+            <img src="imagenes/ilustraciones/INSIGNIA GET-FORCE TEXTURA.png" alt="Insignia" class="insignia-intro">
+            <p><span class="year-highlight">Year 2147.</span><br>
+            Major Tom, a veteran of the Jet Force Space Army, receives a direct order from Ground Control: investigate an unknown phenomenon detected near the planet's orbit.<br>
+            One last look at his wife, one last message: 
+            <span class="quote-highlight">“Just promise me you'll come back.”</span>
+            During the mission, a whirlwind of energy appears in front of the rocket: a Dimensional Vortex.<br>
+            Major Tom loses control and is sucked in, waking up in a parallel reality where the laws of physics have been distorted.<br>
+            His ship has been destroyed: no engines, no fuel, and no generators.<br>
+            To return home, he must rebuild his rocket and overcome five impossible worlds ruled by hostile creatures and legendary guardians.<br>
+            Each world guards a dimensional generator. Only by gathering all five will he be able to return to Earth.</p>
+        </div>
+
+        <div class="capture-container">
+            <img src="capturas/start.png" alt="Start Screen">
+            <img src="capturas/major Tom Screen.png" alt="Major Tom Screen">
+        </div>
+    </section>
+
+    <div class="game-image-container">
+        <img src="imagenes/ilustraciones/ROCKETMAN PERSONAJE solo.png" alt="Protagonista" class="protagonist-img">
+    </div>
+
+    <section id="mision">
+        <h2 class="lang lang-en">2. YOUR MISSION</h2>
+        <h2 class="lang lang-es">2. TU MISIÓN</h2>
+        <div class="lang lang-es">
+            <p>Recoge 3 depósitos de combustible y 3 baterías en cada nivel. Una vez obtenidos, aparecerán las 6 piezas del cohete; recógelas todas y asciende hasta la parte superior para completar la fase. Tras superar todos los niveles de cada mundo (6 en el Modo A y 9 en el Modo B), enfréntate al Jefe Final para obtener su Generador Dimensional. Al derrotar al jefe de cada uno de los 5 mundos, recibirás un código de recuperación. Si es tu primera vez, existe un modo tutorial que explica detalladamente cómo jugar.</p>
+        </div>
+        <div class="lang lang-en">
+            <p>Collect 3 fuel tanks and 3 batteries in each level. Once obtained, the 6 rocket parts will appear; collect them all and reach the top to complete the stage. After clearing all levels in a world (6 in Mode A and 9 in Mode B), face the Final Boss to claim its Dimensional Generator. Defeating the boss of any of the 5 worlds will provide a save code to recover your progress. A tutorial mode is also available to help you learn the game mechanics.</p>
+        </div>
+
+        <img src="imagenes/ilustraciones/Logo_Rocketman_Textura.png" alt="Rocketman Logo" class="mission-logo">
+
+        <div class="video-container">
+            <div class="video-wrapper">
+                <iframe 
+                    src="https://www.youtube.com/embed/sp3IKh8s51A" 
+                    title="Rocketman Trailer 1" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+            <div class="video-wrapper">
+                <iframe 
+                    src="https://www.youtube.com/embed/KY6xH3rTcR4" 
+                    title="Rocketman Trailer 2" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+    </section>
+
+    <section id="mundos">
+        <h2 class="lang lang-en">3. THE GAME WORLDS</h2>
+        <h2 class="lang lang-es">3. LOS MUNDOS DEL JUEGO</h2>
+        
+        <div class="lang lang-es">
+            <div class="world-item">
+                <h3>NIMBORIA – El Reino de las Tormentas Eternas</h3>
+                <p>Serpientes aéreas (Aeróboros), murciélagos eléctricos (Voltánidos) y rocas vivas (Rocánimos) dominan el cielo. Jefe: <span class="boss-name">Pyrothylax, El Azote Celeste</span>.</p>
+            </div>
+            <div class="world-item">
+                <h3>GLACIOR – El Planeta del Frío Eterno</h3>
+                <p>Dragones de escarcha (Cryodrakes), llamas frías (Frigaflames) y rocas heladas (Glacites) acechan entre el hielo. Jefe: <span class="boss-name">Lithara, La Bruja Inerte</span>.</p>
+            </div>
+            <div class="world-item">
+                <h3>ANUBRIA – El Templo del Tiempo Perdido</h3>
+                <p>Momias malditas (Nekraths), avispas del desierto (Stingors) y drones antiguos (Sentrix) patrullan sus pasillos. Jefe: <span class="boss-name">Osiron, El Centinela Eterno</span>.</p>
+            </div>
+            <div class="world-item">
+                <h3>ABYSSIA – El Corazón del Abismo Dimensional</h3>
+                <p>Extraterrestres que se teletransportan (Phazons), medusas etéreas (Glyphors) y rocas ardientes (Magrons) habitan este sector. Jefe: <span class="boss-name">Xenoghul, El Engendro Corrosivo</span>.</p>
+            </div>
+            <div class="world-item">
+                <h3>TENEBRIA – La Ciudad que se Derrite</h3>
+                <p>Engendros derretidos (Meltors), masas viscosas (Glooms) y herramientas poseídas (Spanners) habitan esta urbe corrupta. Jefe: <span class="boss-name">Drakarion, El Aliento Final</span>.</p>
+            </div>
+        </div>
+
+        <div class="lang lang-en">
+            <div class="world-item">
+                <h3>NIMBORIA – The Kingdom of Eternal Storms</h3>
+                <p>Aerial serpents (Aeróboros), electric bats (Voltánidos), and living rocks (Rocánimos) dominate the sky. Boss: <span class="boss-name">Pyrothylax, The Celestial Scourge</span>.</p>
+            </div>
+            <div class="world-item">
+                <h3>GLACIOR – The Planet of Eternal Cold</h3>
+                <p>Frost dragons (Cryodrakes), cold flames (Frigaflames), and icy rocks (Glacites) lurk in the ice. Boss: <span class="boss-name">Lithara, The Inert Witch</span>.</p>
+            </div>
+            <div class="world-item">
+                <h3>ANUBRIA – The Temple of Lost Time</h3>
+                <p>Cursed mummies (Nekraths), desert wasps (Stingors), and ancient drones (Sentrix) patrol its corridors. Boss: <span class="boss-name">Osiron, The Eternal Sentinel</span>.</p>
+            </div>
+            <div class="world-item">
+                <h3>ABYSSIA – The Heart of the Dimensional Abyss</h3>
+                <p>Teleporting aliens (Phazons), ethereal jellyfish (Glyphors), and burning rocks (Magrons). Boss: <span class="boss-name">Xenoghul, The Corrosive Spawn</span>.</p>
+            </div>
+            <div class="world-item">
+                <h3>TENEBRIA – The Melting City</h3>
+                <p>Melted spawns (Meltors), viscous masses (Glooms), and possessed tools (Spanners) inhabit this corrupt city. Boss: <span class="boss-name">Drakarion, The Final Breath</span>.</p>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="capture-container">
+            <img src="capturas/Boss1.gif" alt="Boss 1" style="max-width: 300px; height: auto;"> 
+            <img src="capturas/Boss3.gif" alt="Boss 3" style="max-width: 300px; height: auto;">
+        </div>
+    </section>
+
+    <section id="tienda">
+        <h2 class="lang lang-en">4. THE SHOP</h2>
+        <h2 class="lang lang-es">4. LA TIENDA</h2>
+        <div class="lang lang-es">
+            <ul>
+                <li>Dentro podrás comprar objetos y hablar con los comerciantes alienígenas.</li>
+                <li>Podrás jugar con <strong>DOKI</strong> a <strong>Piedra, Papel o Tijera</strong> apostando minerales.</li>
+                <li>Podrás guardar tu progreso: Hasta 3 códigos de guardado por mundo.</li>
+            </ul>
+        </div>
+        <div class="lang lang-en">
+            <ul>
+                <li>Inside, you can purchase items and speak with alien merchants.</li>
+                <li>You can play <strong>Rock, Paper, Scissors</strong> with <strong>DOKI</strong> by betting minerals.</li>
+                <li>You can save your progress: Up to 3 save codes per world.</li>
+            </ul>
+        </div>
+
+        <div class="capture-container">
+            <img src="capturas/tienda.png" alt="Tienda Gameplay">
+            <img src="capturas/doki.png" alt="Doki Gameplay">
+        </div>
+
+        <div class="grid-header">
+            <div>Icon</div>
+            <div class="lang lang-en">Item / Effect</div>
+            <div class="lang lang-es">Objeto / Efecto</div>
+        </div>
+
+        <div class="grid-row"><div class="grid-cell"><img src="imagenes/items/item_cohete.png" alt="" class="item-icon"></div><div class="grid-cell"><span class="lang lang-en"><strong>Rocket:</strong> Indicates the location of the rocket parts.</span><span class="lang lang-es"><strong>Cohete:</strong> Indica la ubicación de las piezas del cohete.</span></div></div>
+        <div class="grid-row"><div class="grid-cell"><img src="imagenes/items/item_gravedad.png" alt="" class="item-icon"></div><div class="grid-cell"><span class="lang lang-en"><strong>Gravity:</strong> Eliminates thruster inertia.</span><span class="lang lang-es"><strong>Gravedad:</strong> Elimina la inercia del propulsor.</span></div></div>
+        <div class="grid-row"><div class="grid-cell"><img src="imagenes/items/item_velocidad.png" alt="" class="item-icon"></div><div class="grid-cell"><span class="lang lang-en"><strong>Speed:</strong> Increases flight speed.</span><span class="lang lang-es"><strong>Velocidad:</strong> Incrementa la velocidad de vuelo.</span></div></div>
+        <div class="grid-row"><div class="grid-cell"><img src="imagenes/items/item_descargas.png" alt="" class="item-icon"></div><div class="grid-cell"><span class="lang lang-en"><strong>Discharges:</strong> Five electric shots against enemies.</span><span class="lang lang-es"><strong>Descargas:</strong> Cinco disparos eléctricos contra enemigos.</span></div></div>
+        <div class="grid-row"><div class="grid-cell"><img src="imagenes/items/item_botiquin.png" alt="" class="item-icon"></div><div class="grid-cell"><span class="lang lang-en"><strong>Medkit:</strong> Restores all your vital energy.</span><span class="lang lang-es"><strong>Botiquín:</strong> Restaura toda tu energía vital.</span></div></div>
+        <div class="grid-row"><div class="grid-cell"><img src="imagenes/items/item_invulnerabilidad.png" alt="" class="item-icon"></div><div class="grid-cell"><span class="lang lang-en"><strong>Invulnerability:</strong> Total temporary protection.</span><span class="lang lang-es"><strong>Invulnerabilidad:</strong> Protección temporal total.</span></div></div>
+        <div class="grid-row"><div class="grid-cell"><img src="imagenes/items/item_oxigeno.png" alt="" class="item-icon"></div><div class="grid-cell"><span class="lang lang-en"><strong>Oxygen:</strong> Refills the tank completely.</span><span class="lang lang-es"><strong>Oxígeno:</strong> Rellena el tanque completamente.</span></div></div>
+        <div class="grid-row"><div class="grid-cell"><img src="imagenes/items/item_casco.png" alt="" class="item-icon"></div><div class="grid-cell"><span class="lang lang-en"><strong>Helmet:</strong> Protects from enemies falling from the sky.</span><span class="lang lang-es"><strong>Casco:</strong> Protege de los enemigos que caen del cielo.</span></div></div>
+    </section>
+
+    <section id="doki">
+        <h2 class="lang lang-es">5. EL DESAFÍO DE DOKI</h2>
+        <h2 class="lang lang-en">5. DOKI'S CHALLENGE</h2>
+        <div class="lang lang-es">
+            <p>¿Quién dijo que en el espacio todo es correr y saltar? Directamente desde el <strong>menú de inicio</strong>, Rocketman te permite enfrentarte a nuestro carismático amigo alienígena en su juego favorito: <strong>Piedra, Papel o Tijera</strong>.</p>
+            <p>Este modo funciona como un juego independiente donde la suerte y la intuición son tus únicas armas. ¡Mide tus fuerzas contra <strong>DOKI</strong> para ver cuántos minerales eres capaz de arrebatarle antes de volver a tu misión principal!</p>
+        </div>
+        <div class="lang lang-en">
+            <p>Who said space is all about running and jumping? Straight from the <strong>start menu</strong>, Rocketman lets you face our charismatic alien friend in his favorite game: <strong>Rock, Paper, Scissors</strong>.</p>
+            <p>This mode functions as a standalone game where luck and intuition are your only weapons. Test your strength against <strong>DOKI</strong> to see how many minerals you can snatch from him before returning to your main mission!</p>
+        </div>
+
+        <div class="single-video-wrapper">
+            <iframe 
+                src="https://www.youtube.com/embed/Pbwc-CAEDZ0" 
+                title="Rocketman Doki Duel" 
+                allowfullscreen>
+            </iframe>
+        </div>
+    </section>
+
+    <section id="extra">
+        <h2 class="lang lang-en">6. EXTRA ITEMS</h2>
+        <h2 class="lang lang-es">6. OBJETOS EXTRA</h2>
+        <div class="lang lang-es"><p>Algunas plataformas tienen objetos extra escondidos, que te darán ciertas ventajas.</p></div>
+        <div class="lang lang-en"><p>Some platforms have hidden extra items that will grant you certain advantages.</p></div>
+
+        <div class="grid-header">
+            <div>Icon</div>
+            <div class="lang lang-en">Item / Special Effect</div>
+            <div class="lang lang-es">Objeto / Efecto especial</div>
+        </div>
+
+        <div class="grid-row"><div class="grid-cell"><img src="imagenes/objetos/objeto_collar.png" alt="" class="item-icon"></div><div class="grid-cell"><span class="lang lang-en"><strong>Collar:</strong> Play Rock, Paper, Scissors with no limits.</span><span class="lang lang-es"><strong>Collar:</strong> Juega a Piedra, Papel o Tijera sin límite.</span></div></div>
+        <div class="grid-row"><div class="grid-cell"><img src="imagenes/objetos/objeto_llave.png" alt="" class="item-icon"></div><div class="grid-cell"><span class="lang lang-en"><strong>Key:</strong> Enter the shop whenever you want.</span><span class="lang lang-es"><strong>Llave:</strong> Entra en la tienda siempre que quieras.</span></div></div>
+        <div class="grid-row"><div class="grid-cell"><img src="imagenes/objetos/objeto_sombrero.png" alt="" class="item-icon"></div><div class="grid-cell"><span class="lang lang-en"><strong>Hat:</strong> Access to all shop items.</span><span class="lang lang-es"><strong>Sombrero:</strong> Acceso a todos los objetos de la tienda.</span></div></div>
+        <div class="grid-row"><div class="grid-cell"><img src="imagenes/objetos/objeto_gafas.png" alt="" class="item-icon"></div><div class="grid-cell"><span class="lang lang-en"><strong>Glasses:</strong> Reveals tiles hiding secrets.</span><span class="lang lang-es"><strong>Gafas:</strong> Muestra los tiles que esconden secretos.</span></div></div>
+        <div class="grid-row"><div class="grid-cell"><img src="imagenes/objetos/objeto_corbata.png" alt="" class="item-icon"></div><div class="grid-cell"><span class="lang lang-en"><strong>Tie:</strong> Purchases cost no minerals.</span><span class="lang lang-es"><strong>Corbata:</strong> Las compras no te cuestan minerales.</span></div></div>
+        <div class="grid-row"><div class="grid-cell"><img src="imagenes/objetos/objeto_energizer.png" alt="" class="item-icon"></div><div class="grid-cell"><span class="lang lang-en"><strong>Energizer:</strong> Allows 5 teleports.</span><span class="lang lang-es"><strong>Energizer:</strong> Permite 5 teletransportes.</span></div></div>
+        <div class="grid-row"><div class="grid-cell"><img src="imagenes/objetos/objeto_infinito.png" alt="" class="item-icon"></div><div class="grid-cell"><span class="lang lang-en"><strong>Infinite:</strong> Infinite shots and energizers.</span><span class="lang lang-es"><strong>Infinito:</strong> Disparos y energizadores infinitos.</span></div></div>
+        <div class="grid-row"><div class="grid-cell"><img src="imagenes/objetos/objeto_propulsor.png" alt="" class="item-icon"></div><div class="grid-cell"><span class="lang lang-en"><strong>Thruster:</strong> Jet fuel never runs out.</span><span class="lang lang-es"><strong>Propulsor:</strong> El combustible del jet nunca se agota.</span></div></div>
+        <div class="grid-row"><div class="grid-cell"><img src="imagenes/objetos/objeto_warp.png" alt="" class="item-icon"></div><div class="grid-cell"><span class="lang lang-en"><strong>Warp:</strong> Skip 3 levels forward.</span><span class="lang lang-es"><strong>Warp:</strong> Salta 3 niveles hacia adelante.</span></div></div>
+        <div class="grid-row"><div class="grid-cell"><img src="imagenes/objetos/objeto_mineral_oro.png" alt="" class="item-icon"></div><div class="grid-cell"><span class="lang lang-en"><strong>Gold Mineral:</strong> Access to extra secret screen.</span><span class="lang lang-es"><strong>Mineral Oro:</strong> Acceso a pantalla extra secreta.</span></div></div>
+        <div class="grid-row"><div class="grid-cell"><img src="imagenes/objetos/objeto_tiempo.png" alt="" class="item-icon"></div><div class="grid-cell"><span class="lang lang-en"><strong>Time Stop:</strong> Temporarily freezes enemies and oxygen.</span><span class="lang lang-es"><strong>Stop Tiempo:</strong> Congela enemigos y oxígeno temporalmente.</span></div></div>
+        <div class="grid-row"><div class="grid-cell"><img src="imagenes/objetos/objeto_talisman.png" alt="" class="item-icon"></div><div class="grid-cell"><span class="lang lang-en"><strong>Talisman:</strong> You'll have to discover what it does.</span><span class="lang lang-es"><strong>Talisman:</strong> Tendrás que descubrir qué hace.</span></div></div>
+
+        <div class="capture-container" style="margin: 50px 0;">
+            <img src="capturas/info.png" alt="Info Screen">
+        </div>
+    </section>
+
+    <section id="jukebox">
+        <h2 class="lang lang-es">7. SINTONIZA LA AVENTURA: EL JUKEBOX</h2>
+        <h2 class="lang lang-en">7. TUNE INTO ADVENTURE: THE JUKEBOX</h2>
+        
+        <div class="lang lang-es">
+            <p>La experiencia retro no estaría completa sin su banda sonora. Rocketman incluye un sistema de <strong>Jukebox</strong> integrado que te permite revivir y escuchar todas las melodías del juego siempre que quieras. Sumérgete en la atmósfera de cada mundo a través de sus notas.</p>
+        </div>
+        <div class="lang lang-en">
+            <p>The retro experience wouldn't be complete without its soundtrack. Rocketman includes an integrated <strong>Jukebox</strong> system that allows you to relive and listen to all the game's melodies whenever you want. Immerse yourself in the atmosphere of each world through its notes.</p>
+        </div>
+        
+        <div class="single-video-wrapper">
+            <iframe 
+                src="https://www.youtube.com/embed/gRyyUrKLQUg" 
+                title="Rocketman Jukebox" 
+                allowfullscreen>
+            </iframe>
+        </div>
+    </section>
+
+    <section id="fisico" class="physical-alert">
+        <h2 class="lang lang-es">8. EDICIÓN FÍSICA: ¡PRÓXIMAMENTE!</h2>
+        <h2 class="lang lang-en">8. PHYSICAL EDITION: COMING SOON!</h2>
+        
+        <div class="lang lang-es">
+            <p>¡Atención, nostálgicos y coleccionistas del MSX! Muy pronto este espacio se actualizará con todos los detalles de la <strong>versión física de Rocketman</strong>, incluyendo un manual y un cartucho de 512k de memoria.</p>
+            <p><strong>Requisitos Técnicos:</strong> MSX de primera generación de 64K, música y sonidos PSG.</p>
+            <p style="font-size: 1.2rem; margin: 20px 0;">El juego se podrá adquirir oficialmente en el mes de <span class="year-highlight">JUNIO</span>.</p>
+            <p>Si quieres asegurar tu unidad, ya puedes realizar tu reserva enviando un correo a:</p>
+            <p><a href="mailto:rocketman301122@gmail.com" class="email-link">rocketman301122@gmail.com</a></p>
+        </div>
+
+        <div class="lang lang-en">
+            <p>Attention MSX collectors! This space will soon be updated with all the details of the <strong>physical version of Rocketman</strong>, including manual, and cartridge.</p>
+            <p><strong>Technical Requirements:</strong> First-generation MSX with 64K RAM, PSG music and sounds. Physical version includes a 512K cartridge.</p>
+            <p style="font-size: 1.2rem; margin: 20px 0;">The game will be officially available for purchase in <span class="year-highlight">JUNE</span>.</p>
+            <p>If you want to secure your copy, you can pre-order now by sending an email to:</p>
+            <p><a href="mailto:rocketman301122@gmail.com" class="email-link">rocketman301122@gmail.com</a></p>
+        </div>
+    </section>
+
+    <section id="promo">
+        <h2 class="lang lang-es">9. VÍDEO PROMOCIONAL</h2>
+        <h2 class="lang lang-en">9. PROMOTIONAL VIDEO</h2>
+        <div class="lang lang-es">
+            <p>¡No te pierdas el nuevo vídeo promocional de Rocketman! Creado por Toni Gálvez. Descubre la magia de la era MSX en alta resolución.</p>
+        </div>
+        <div class="lang lang-en">
+            <p>Don't miss the new Rocketman promotional video! Created by Toni Gálvez. Discover the magic of the MSX era in high resolution.</p>
+        </div>
+        <div class="single-video-wrapper">
+            <iframe 
+                src="https://www.youtube.com/embed/9DRCL-vI-8E" 
+                title="Rocketman Promo Video" 
+                allowfullscreen>
+            </iframe>
+        </div>
+    </section>
+
+    <section id="creditos">
+        <h2 class="lang lang-en">10. CREDITS</h2>
+        <h2 class="lang lang-es">10. CRÉDITOS</h2>
+        <div class="lang lang-es">
+            <ul class="credits-list">
+                <li><strong>Producción:</strong> Producciones Teniente Corrupto.</li>
+                <li><strong>Ilustraciones:</strong> Ángel Luis Sánchez.</li>
+                <li><strong>Gráficos y Sprites:</strong> Oscar Centelles, Toni Gálvez, Nenefranz, Dani Perujo y Errazking.</li>
+                <li><strong>Música:</strong>  Bitcaffe.</li>
+                <li><strong>Efectos sonoros:</strong>  Toni Gálvez.</li>
+                <li><strong>Diseño y maquetación de la edición física:</strong> Marcel Lladó, Dani Tear.</li>  
+                <li><strong>Pruebas y Equilibrio de Juego:</strong> Xavier Sorinas, Ramón Carvajal y Toblagil.</li>
+                <li><strong>Diseño, programación y argumento:</strong> Dani Tear.</li>
+            </ul>
+        </div>
+        <div class="lang lang-en">
+            <ul class="credits-list">
+                <li><strong>Production:</strong> Producciones Teniente Corrupto.</li>
+                <li><strong>Illustrations:</strong> Ángel Luis Sánchez.</li>
+                <li><strong>Graphics and Sprites:</strong> Oscar Centelles, Toni Gálvez, Nenefranz, Dani Perujo and Errazking.</li>
+                <li><strong>Music:</strong> Bitcaffe.</li>
+                <li><strong>Sound Effects:</strong> Toni Gálvez.</li>
+                <li><strong>Layout & Packaging Design:</strong> Marcel Lladó, Dani Tear.</li>               
+                <li><strong>Testing and Game Balance:</strong> Xavier Sorinas, Ramón Carvajal and Toblagil.</li>
+                <li><strong>Design, Programming, and Story:</strong> Dani Tear</li>
+            </ul>
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    <p>&copy; 2026 Renovatio - Rocketman MSX Game</p>
+    <div class="social-icons">
+            <a href="https://www.facebook.com/profile.php?id=100013103400745" target="_blank">
+                <img src="https://cdn-icons-png.flaticon.com/512/5968/5968764.png" alt="Facebook">
+            </a>
+            <a href="https://x.com/rocketmanmsx" target="_blank">
+             <img src="https://cdn-icons-png.flaticon.com/512/5969/5969020.png" alt="X">
+            </a>
+            <a href="https://www.youtube.com/@danitear8173" target="_blank">
+                <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt="YouTube">
+            </a>
+    </div>
+</footer>
+
+</body>
+</html>
